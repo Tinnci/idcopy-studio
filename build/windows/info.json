@@ -1,0 +1,15 @@
+{
+	"fixed": {
+		"file_version": "0.1.0"
+	},
+	"info": {
+		"0000": {
+			"ProductVersion": "0.1.0",
+			"CompanyName": "Tinnci",
+			"FileDescription": "International identity-document copy layout and PDF generator",
+			"LegalCopyright": "Copyright 2026 Tinnci",
+			"ProductName": "ID Copy Studio",
+			"Comments": "Processes identity-document images locally without uploading them."
+		}
+	}
+}

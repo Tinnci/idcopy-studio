@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Name=ID Copy Studio
+Comment=International identity-document copy layout and PDF generator
+# The Exec line includes %u to pass the URL to the application
+Exec=/usr/local/bin/idcopy-studio %u
+Terminal=false
+Type=Application
+Icon=idcopy-studio
+Categories=Utility;
+StartupWMClass=idcopy-studio
+
+ 

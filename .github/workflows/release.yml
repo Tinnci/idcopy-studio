@@ -1,0 +1,65 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  macos:
+    name: macOS release
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache: true
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+      - name: Install Wails 3 CLI
+        run: go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-alpha2.117
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: bun install --frozen-lockfile
+      - name: Apply release metadata
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          version="${VERSION#v}"
+          wails3 update build-assets \
+            -name idcopy-studio \
+            -binaryname idcopy-studio \
+            -dir build \
+            -productcompany Tinnci \
+            -productname "ID Copy Studio" \
+            -productidentifier com.tinnci.idcopystudio \
+            -productdescription "International identity-document copy layout and PDF generator" \
+            -productcopyright "Copyright 2026 Tinnci" \
+            -productcomments "Processes identity-document images locally without uploading them." \
+            -productversion "$version"
+      - name: Build and package
+        run: wails3 package
+      - name: Create release archive
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          version="${VERSION#v}"
+          arch="$(uname -m)"
+          mkdir -p dist
+          archive="dist/ID-Copy-Studio-${version}-macOS-${arch}.zip"
+          ditto -c -k --sequesterRsrc --keepParent bin/idcopy-studio.app "$archive"
+          shasum -a 256 "$archive" > "$archive.sha256"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: idcopy-studio-macos
+          path: dist/*
+          if-no-files-found: error
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/* --generate-notes --verify-tag

@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  go-core:
+    name: Go core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Test with race detector
+        run: go test -race ./idcopy
+      - name: Vet core package
+        run: go vet ./idcopy
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+      - name: Install dependencies
+        working-directory: frontend
+        run: bun install --frozen-lockfile
+      - name: Type check with tsgo
+        working-directory: frontend
+        run: bun run typecheck
+      - name: Production build
+        working-directory: frontend
+        run: bun run build
+
+  macos-app:
+    name: Wails macOS build
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache: true
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+      - name: Install Wails 3 CLI
+        run: go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-alpha2.117
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: bun install --frozen-lockfile
+      - name: Build Wails application
+        run: wails3 build
+      - name: Inspect binary
+        run: file bin/idcopy-studio

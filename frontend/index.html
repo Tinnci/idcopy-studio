@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f3efe6" />
+    <title>ID Copy Studio</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"><span></span><span></span></div>
+        <div>
+          <h1>ID Copy Studio</h1>
+          <p>国际证件复印 PDF 排版</p>
+        </div>
+      </div>
+      <div class="privacy-pill"><span class="privacy-dot"></span>图像仅在本机处理</div>
+    </header>
+
+    <main class="app-shell">
+      <aside class="control-panel" aria-label="排版设置">
+        <section class="panel-section">
+          <div class="section-heading"><span>01</span><h2>证件规格</h2></div>
+          <label class="field">
+            <span>国家 / 国际标准</span>
+            <select id="document-select"></select>
+          </label>
+          <p id="document-meta" class="field-note"></p>
+          <div id="custom-document" class="custom-size hidden">
+            <label class="field compact"><span>宽度 mm</span><input id="document-width" type="number" min="5" max="1000" step="0.1" value="85.6" /></label>
+            <span class="size-cross">×</span>
+            <label class="field compact"><span>高度 mm</span><input id="document-height" type="number" min="5" max="1000" step="0.1" value="54" /></label>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-heading"><span>02</span><h2>图像</h2></div>
+          <div class="image-inputs">
+            <div class="image-slot" id="front-slot" data-side="front" tabindex="0" role="button">
+              <input id="front-file" type="file" accept="image/jpeg,image/png" hidden />
+              <div class="image-placeholder"><span class="upload-icon">＋</span><strong>正面</strong><small>点击或拖入 JPEG / PNG</small></div>
+              <img id="front-thumb" alt="证件正面预览" />
+              <button class="rotate-button" id="front-rotate" type="button" title="顺时针旋转 90 度">↻</button>
+            </div>
+            <div class="image-slot" id="back-slot" data-side="back" tabindex="0" role="button">
+              <input id="back-file" type="file" accept="image/jpeg,image/png" hidden />
+              <div class="image-placeholder"><span class="upload-icon">＋</span><strong>背面</strong><small>点击或拖入 JPEG / PNG</small></div>
+              <img id="back-thumb" alt="证件背面预览" />
+              <button class="rotate-button" id="back-rotate" type="button" title="顺时针旋转 90 度">↻</button>
+            </div>
+          </div>
+          <label class="field">
+            <span>输出面</span>
+            <select id="sides-select">
+              <option value="both">正面 + 背面</option>
+              <option value="front">仅正面</option>
+              <option value="back">仅背面</option>
+            </select>
+          </label>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-heading"><span>03</span><h2>纸张与版式</h2></div>
+          <div class="field-grid two">
+            <label class="field"><span>纸张</span><select id="paper-select"></select></label>
+            <label class="field"><span>方向</span><select id="orientation-select"><option value="auto">自动</option><option value="portrait">纵向</option><option value="landscape">横向</option></select></label>
+          </div>
+          <div id="custom-paper" class="custom-size hidden">
+            <label class="field compact"><span>宽度 mm</span><input id="paper-width" type="number" min="50" max="2000" step="0.1" value="210" /></label>
+            <span class="size-cross">×</span>
+            <label class="field compact"><span>高度 mm</span><input id="paper-height" type="number" min="50" max="2000" step="0.1" value="297" /></label>
+          </div>
+          <label class="field">
+            <span>排列</span>
+            <select id="arrangement-select">
+              <option value="paired">正反横排，按份成组</option>
+              <option value="stacked">正反纵排，按份成组</option>
+              <option value="grid">独立网格，优先装满纸张</option>
+              <option value="separate-pages">每面单独一页并居中</option>
+            </select>
+          </label>
+          <div class="field-grid three">
+            <label class="field"><span>份数</span><input id="copies-input" type="number" min="1" max="100" value="1" /></label>
+            <label class="field"><span>比例 %</span><input id="scale-input" type="number" min="25" max="400" step="1" value="100" /></label>
+            <label class="field"><span>图像适配</span><select id="fit-select"><option value="cover">裁切填满</option><option value="contain">完整留白</option><option value="stretch">拉伸填满</option></select></label>
+          </div>
+          <div class="field-grid two">
+            <label class="field"><span>页边距 mm</span><input id="margin-input" type="number" min="0" max="50" step="0.5" value="12" /></label>
+            <label class="field"><span>间距 mm</span><input id="gap-input" type="number" min="0" max="50" step="0.5" value="8" /></label>
+          </div>
+          <label class="check-field"><input id="cutmarks-input" type="checkbox" /><span class="fake-check"></span><span>添加裁切标记</span></label>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-heading"><span>04</span><h2>导出与水印</h2></div>
+          <label class="field"><span>文件名</span><input id="filename-input" type="text" value="id-copy.pdf" maxlength="120" /></label>
+          <div class="field-grid two">
+            <label class="field"><span>图像质量</span><select id="quality-select"><option value="original">保留原图</option><option value="compact">紧凑 · 150 DPI</option><option value="print" selected>打印 · 300 DPI</option><option value="archive">精细 · 600 DPI</option></select></label>
+            <label class="field"><span>图像编码</span><select id="encoding-select"><option value="jpeg">JPEG · 较小</option><option value="png">PNG · 无损</option></select></label>
+          </div>
+          <label class="check-field"><input id="watermark-input" type="checkbox" /><span class="fake-check"></span><span>添加压平水印</span></label>
+          <div id="watermark-settings" class="watermark-settings hidden">
+            <label class="field"><span>水印文字</span><input id="watermark-text" type="text" value="仅供复印使用" maxlength="80" /></label>
+            <div class="field-grid two">
+              <label class="field"><span>方式</span><select id="watermark-mode"><option value="repeat">平铺</option><option value="center">居中</option></select></label>
+              <label class="field"><span>颜色</span><select id="watermark-color"><option value="#b7412a">红色</option><option value="#555555">灰色</option><option value="#1f5d82">蓝色</option></select></label>
+            </div>
+            <div class="range-row">
+              <label><span>透明度</span><input id="watermark-opacity" type="range" min="8" max="70" value="28" /><output id="watermark-opacity-output">28%</output></label>
+              <label><span>字号</span><input id="watermark-size" type="range" min="3" max="16" value="7" /><output id="watermark-size-output">7%</output></label>
+            </div>
+            <label class="field"><span>角度 °</span><input id="watermark-angle" type="number" min="-90" max="90" step="1" value="-28" /></label>
+            <p class="flatten-note"><span>✓</span>水印在保存前烘焙进图像像素，不作为可单独选择的 PDF 文本层。</p>
+          </div>
+          <details class="metadata-details">
+            <summary>PDF 元数据</summary>
+            <label class="field"><span>标题</span><input id="pdf-title" type="text" value="证件复印件" maxlength="120" /></label>
+            <div class="field-grid two">
+              <label class="field"><span>作者</span><input id="pdf-author" type="text" maxlength="120" /></label>
+              <label class="field"><span>关键词</span><input id="pdf-keywords" type="text" value="identity copy" maxlength="180" /></label>
+            </div>
+            <label class="field"><span>主题</span><input id="pdf-subject" type="text" value="本地生成的证件复印排版" maxlength="180" /></label>
+          </details>
+        </section>
+
+        <div class="export-area">
+          <button id="export-button" class="export-button" type="button"><span>保存 PDF…</span><span aria-hidden="true">↗</span></button>
+          <button id="download-button" class="secondary-button" type="button">浏览器导出副本</button>
+          <p id="status-text" class="status-text">请选择证件正反面图像</p>
+        </div>
+      </aside>
+
+      <section class="preview-workspace" aria-label="页面预览">
+        <div class="preview-toolbar">
+          <div>
+            <span class="eyebrow">实时排版预览</span>
+            <h2 id="preview-title">A4 · 210 × 297 mm</h2>
+          </div>
+          <div class="preview-stats">
+            <span id="document-size-stat">证件 85.6 × 54 mm</span>
+            <span id="page-count-stat">1 页</span>
+          </div>
+        </div>
+        <div class="canvas-stage">
+          <div id="paper-preview" class="paper-preview" aria-label="纸张预览"></div>
+        </div>
+        <div class="page-navigation">
+          <button id="previous-page" type="button" aria-label="上一页">←</button>
+          <span id="page-indicator">第 1 / 1 页</span>
+          <button id="next-page" type="button" aria-label="下一页">→</button>
+        </div>
+        <div class="preview-footer">
+          <p>尺寸按物理毫米计算，PDF 使用 72 pt/in 精确换算。</p>
+          <p id="orientation-note">自动方向：纵向</p>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
